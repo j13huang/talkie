@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist/ui",
+    "module": "es6",
+    "target": "es2017",
+    "strict": true,
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "jsx": "react-jsx"
+  },
+  "include": ["./ui"],
+  "exclude": ["server/*.ts"]
+}
