@@ -9,12 +9,12 @@ const wss = new websockets.Server(httpServer);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.get("/", (req, res) => {
-  wss.broadcast("yo");
+app.get("*", (req, res) => {
   res.sendFile("../ui/index.html", { root: __dirname });
 });
 
 app.post("/request", (req, res) => {
+  wss.broadcast("yo");
   res.status(200).send({ message: "video is added to playlist" });
 });
 

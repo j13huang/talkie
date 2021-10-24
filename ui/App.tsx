@@ -1,12 +1,14 @@
 import { useState } from "react";
 import logo from "./logo.svg";
 import { Audio, Video } from "./media";
+import { useWS } from "./websockets";
 
 import "./App.css";
 
 function App() {
   const [count, setCount] = useState(0);
   const [userCount, setUserCount] = useState(0);
+  const ws = useWS();
 
   return (
     <div className="App">

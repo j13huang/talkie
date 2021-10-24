@@ -10,8 +10,13 @@ export default defineConfig({
   clearScreen: false,
   server: {
     proxy: {
-      "/api": {
+      "*": {
         target: `http://localhost:${PORT}`,
+        changeOrigin: true,
+      },
+      "/ws": {
+        target: `ws://localhost:${PORT}`,
+        ws: true,
         changeOrigin: true,
       },
     },

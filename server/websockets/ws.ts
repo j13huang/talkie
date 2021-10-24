@@ -1,5 +1,5 @@
 import * as http from "http";
-import WebSocket, { WebSocketServer } from "ws";
+import { WebSocket, Server as WebSocketServer } from "ws";
 
 // This code generates unique userid for everyuser.
 const getUniqueID = () => {
@@ -12,28 +12,38 @@ const getUniqueID = () => {
 
 export class Server {
   wss: WebSocketServer;
-  clients: {};
+  clients: { [key: string]: any };
 
   constructor(server: http.Server) {
     this.clients = {};
     this.wss = new WebSocketServer({ server: server, path: "/ws" });
 
-    this.wss.on("connection", (ws) => {
+    this.wss.on("connection", (ws: WebSocket) => {
       console.log("One client connected");
+      var userID = getUniqueID();
+      this.clients[userID] = ws;
+
       ws.on("message", (msg) => {
         ws.send(`incoming msg is = ${msg}`);
       });
     });
-
-    this.wss.on("request", function (request) {
-      var userID = getUniqueID();
-      console.log(new Date() + " Recieved a new connection from origin " + request.origin + ".");
-      // You can rewrite this part of the code to accept only the requests from allowed origin
-      const connection = request.accept(null, request.origin);
-      this.clients[userID] = connection;
-      console.log("connected: " + userID + " in " + Object.keys(this.clients));
-    });
   }
+
+  onMessage = (message: WebSocket, websocket: http.IncomingMessage) => {
+    if (!message || !websocket) return;
+
+    try {
+      /*
+      if (message.checkPresence) {
+        //checkPresence(message, websocket);
+      } else if (message.open) {
+        //onOpen(message, websocket);
+      } else {
+        //sendMessage(message, websocket);
+      }
+      */
+    } catch (e) {}
+  };
 
   broadcast(msg: string) {
     this.wss.clients.forEach((client) => {
