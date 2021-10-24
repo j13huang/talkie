@@ -9,6 +9,7 @@ export default defineConfig({
   root: "ui",
   clearScreen: false,
   server: {
+    host: "0.0.0.0",
     proxy: {
       "*": {
         target: `http://localhost:${PORT}`,
