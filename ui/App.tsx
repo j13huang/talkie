@@ -9,7 +9,7 @@ import "./App.css";
 function App() {
   const [count, setCount] = useState(0);
   const [users, setUsers] = useState([]);
-  const [usersToInitiate, setUsersToInitiate] = useState([]);
+  const [usersToConnect, setUsersToConnect] = useState([]);
   const [wsRef, clientID] = useWS();
 
   useEffect(() => {
@@ -29,7 +29,7 @@ function App() {
         setUsers(data.users);
       }
       if (data.initiateWithUsers) {
-        setUsersToInitiate(data.initiateWithUsers);
+        setUsersToConnect(data.initiateWithUsers);
       }
     };
     wsRef.current.addEventListener("message", onMessage);
@@ -51,7 +51,7 @@ function App() {
             id !== clientID ? (
               <div key={id}>
                 <div>{id}</div>
-                <Audio clientID={id} wsRef={wsRef} initiate={usersToInitiate.includes(id)} />
+                <Audio originID={clientID} wsRef={wsRef} peerID={usersToConnect.includes(id) ? id : ""} />
               </div>
             ) : null,
           )}

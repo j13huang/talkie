@@ -6,6 +6,7 @@ interface Props {
   wsRef: RefObject<WebSocket>;
 }
 
+// maybe helpful https://blog.logrocket.com/responsive-camera-component-react-hooks/
 const CAPTURE_OPTIONS = {
   audio: false,
   video: {

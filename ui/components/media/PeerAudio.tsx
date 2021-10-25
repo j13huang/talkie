@@ -2,17 +2,17 @@ import { useRef, RefObject, MutableRefObject, useEffect } from "react";
 import { usePeerConnection } from "../../lib/peerConnection";
 
 interface Props {
-  clientID: string;
+  originID: string;
   wsRef: RefObject<WebSocket>;
   mediaStream: MediaStream;
-  initiate: boolean;
+  peerID: string;
 }
 
 const TRACK_TYPE = "audio";
 
-export const PeerAudio = ({ clientID, wsRef, mediaStream, initiate }: Props) => {
+export const PeerAudio = ({ originID, wsRef, mediaStream, peerID }: Props) => {
   const audioRef = useRef() as MutableRefObject<HTMLAudioElement>;
-  const [pcRef] = usePeerConnection(mediaStream, wsRef, TRACK_TYPE, "channel", initiate);
+  const [pcRef] = usePeerConnection(mediaStream, wsRef, TRACK_TYPE, "channel", originID, peerID);
 
   useEffect(() => {
     if (!mediaStream || !pcRef || !pcRef.current) {

@@ -2,29 +2,28 @@ import { useState, useRef, MutableRefObject, useEffect, RefObject } from "react"
 
 type cb = (data: any) => void;
 
+// helpful docs
+// https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API/Signaling_and_video_calling
+// https://www.html5rocks.com/en/tutorials/webrtc/basics/
 export function usePeerConnection(
   mediaStream: MediaStream | undefined,
   wsRef: RefObject<WebSocket>,
   trackType: string,
   channel: string,
-  initiate: boolean,
+  originID: string,
+  peerID: string,
 ): [RefObject<RTCPeerConnection>] {
+  const [candidatePeerID, setCandidatePeerID] = useState(peerID);
   const pcRef = useRef(null) as MutableRefObject<RTCPeerConnection | null>;
 
   useEffect(() => {
     if (!mediaStream || !wsRef || !wsRef.current) {
       return;
     }
+    // https://stackoverflow.com/questions/20068944/how-to-self-host-to-not-rely-on-webrtc-stun-server-stun-l-google-com19302
     const configuration = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
     const pc = new RTCPeerConnection(configuration);
     console.log(pc);
-    pc.addEventListener("icecandidate", (e: RTCPeerConnectionIceEvent) => {
-      console.log("icecandidate", e.candidate);
-      if (!wsRef || !wsRef.current || !e.candidate) {
-        return;
-      }
-      wsRef.current.send(JSON.stringify({ type: "new_candidate", candidate: e.candidate, channel }));
-    });
     pc.addEventListener("negotiationneeded", async () => {
       if (!wsRef || !wsRef.current) {
         return;
@@ -32,7 +31,7 @@ export function usePeerConnection(
       console.log("sending-offer");
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
-      wsRef.current.send(JSON.stringify({ type: "offer", sdp: offer, channel }));
+      wsRef.current.send(JSON.stringify({ type: "offer", sdp: offer, channel, originID, peerID }));
     });
     /*
     pc.addEventListener("track", (e: RTCTrackEvent) => {
@@ -44,7 +43,7 @@ export function usePeerConnection(
     });
     */
 
-    if (initiate) {
+    if (peerID) {
       mediaStream.getTracks().forEach((track) => {
         console.log("sending-track", track);
         if (track.kind !== trackType) {
@@ -66,20 +65,44 @@ export function usePeerConnection(
   }, [mediaStream, wsRef, trackType, channel]);
 
   useEffect(() => {
+    if (!pcRef || !pcRef.current) {
+      return;
+    }
+
+    const onNewIceCandidate = (e: RTCPeerConnectionIceEvent) => {
+      if (!candidatePeerID) {
+        console.log("NO CANDIDATE?");
+      }
+      console.log("icecandidate", e.candidate);
+      if (!wsRef || !wsRef.current || !e.candidate) {
+        return;
+      }
+      wsRef.current.send(JSON.stringify({ type: "new_candidate", candidate: e.candidate, channel, to: candidatePeerID }));
+    };
+    pcRef.current.addEventListener("icecandidate", onNewIceCandidate);
+
+    return () => {
+      if (!pcRef || !pcRef.current) {
+        return;
+      }
+      pcRef.current.removeEventListener("icecandidate", onNewIceCandidate);
+    };
+  }, [wsRef, pcRef, candidatePeerID]);
+
+  useEffect(() => {
     if (!wsRef || !wsRef.current || !pcRef || !pcRef.current) {
       return;
     }
 
     const onMessage = async (e: MessageEvent) => {
       const data = JSON.parse(e.data);
-      console.log("signal", data);
       if (!mediaStream || !data || !data.type || !wsRef || !wsRef.current || !pcRef || !pcRef.current) {
         return;
       }
 
       if (data.type === "offer") {
+        setCandidatePeerID(data.peerID);
         await pcRef.current.setRemoteDescription(data.sdp);
-
         for (const track of mediaStream.getTracks()) {
           console.log("received-offer-track", track);
           if (track.kind !== trackType) {
@@ -90,7 +113,9 @@ export function usePeerConnection(
 
         const answer = await pcRef.current.createAnswer();
         await pcRef.current.setLocalDescription(answer);
-        wsRef.current.send(JSON.stringify({ type: "answer", sdp: answer, channel }));
+        wsRef.current.send(
+          JSON.stringify({ type: "answer", sdp: answer, channel, originID: data.originID, peerID: data.peerID }),
+        );
         return;
       }
 

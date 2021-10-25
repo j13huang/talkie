@@ -54,9 +54,13 @@ export class Server {
         this.broadcast({ count: this.count });
         return;
       case EVENT_TYPES.OFFER:
+        this.clients[data.peerID].send(msg.toString());
+        return;
       case EVENT_TYPES.ANSWER:
+        this.clients[data.originID].send(msg.toString());
+        return;
       case EVENT_TYPES.NEW_CANDIDATE:
-        this.broadcast(data, ws);
+        this.clients[data.to].send(msg.toString());
         return;
     }
   };

@@ -11,7 +11,7 @@ export function useWS(): [RefObject<WebSocket>, string] {
       ws.addEventListener("open", () => console.log("ws opened"));
       ws.addEventListener("message", (e) => {
         const message = JSON.parse(e.data);
-        console.log("e", message);
+        console.log("ws message", message);
         if (!message) {
           return;
         }

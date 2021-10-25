@@ -3,20 +3,22 @@ import { useUserMedia } from "./userMedia";
 import { PeerAudio } from "./PeerAudio";
 
 interface Props {
-  clientID: string;
+  // ws client id of this ws
+  originID: string;
   wsRef: RefObject<WebSocket>;
-  initiate: boolean;
+  // ws client id of peer ws
+  peerID: string;
 }
 
 const CAPTURE_OPTIONS = {
   audio: true,
 };
 
-export const Audio = ({ clientID, wsRef, initiate }: Props) => {
+export const Audio = ({ originID, wsRef, peerID }: Props) => {
   const [mediaStream] = useUserMedia(CAPTURE_OPTIONS);
 
   if (!mediaStream) {
     return null;
   }
-  return <PeerAudio clientID={clientID} wsRef={wsRef} mediaStream={mediaStream} initiate={initiate} />;
+  return <PeerAudio wsRef={wsRef} mediaStream={mediaStream} originID={originID} peerID={peerID} />;
 };
