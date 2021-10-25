@@ -2,17 +2,15 @@ import { useRef, RefObject, MutableRefObject, useEffect } from "react";
 import { usePeerConnection } from "../../lib/peerConnection";
 
 interface Props {
-  clientID: string;
   wsRef: RefObject<WebSocket>;
   mediaStream: MediaStream;
-  initiate: boolean;
 }
 
-const TRACK_TYPE = "audio";
+const TRACK_TYPE = "video";
 
-export const PeerAudio = ({ clientID, wsRef, mediaStream, initiate }: Props) => {
-  const audioRef = useRef() as MutableRefObject<HTMLAudioElement>;
-  const [pcRef] = usePeerConnection(mediaStream, wsRef, TRACK_TYPE, "channel", initiate);
+export const PeerScreenShare = ({ wsRef, mediaStream }: Props) => {
+  const videoRef = useRef() as MutableRefObject<HTMLVideoElement>;
+  const [pcRef] = usePeerConnection(mediaStream, wsRef, TRACK_TYPE, "channel", false);
 
   useEffect(() => {
     if (!mediaStream || !pcRef || !pcRef.current) {
@@ -24,8 +22,8 @@ export const PeerAudio = ({ clientID, wsRef, mediaStream, initiate }: Props) => 
       if (e.track.kind !== TRACK_TYPE) {
         return;
       }
-      if (audioRef.current && !audioRef.current.srcObject) {
-        audioRef.current.srcObject = e.streams[0];
+      if (videoRef.current && !videoRef.current.srcObject) {
+        videoRef.current.srcObject = e.streams[0];
       }
     };
     pcRef.current.addEventListener("track", onTrack);
@@ -35,11 +33,11 @@ export const PeerAudio = ({ clientID, wsRef, mediaStream, initiate }: Props) => 
       }
       pcRef.current.removeEventListener("track", onTrack);
     };
-  }, [pcRef, audioRef]);
+  }, [pcRef, videoRef]);
 
   function handleCanPlay() {
-    audioRef.current.play();
+    videoRef.current.play();
   }
 
-  return <audio ref={audioRef} onCanPlay={handleCanPlay} autoPlay playsInline />;
+  return <video ref={videoRef} onCanPlay={handleCanPlay} autoPlay playsInline />;
 };

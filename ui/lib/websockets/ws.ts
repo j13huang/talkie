@@ -1,13 +1,12 @@
 import { useState, useRef, MutableRefObject, useEffect, RefObject } from "react";
 
-type cb = (data: any) => void;
-
-export function useWS(onMessage: cb): [RefObject<WebSocket>, string] {
+export function useWS(): [RefObject<WebSocket>, string] {
   const [clientID, setClientID] = useState("");
   const wsRef = useRef(null) as MutableRefObject<WebSocket | null>;
 
   useEffect(() => {
     const setupWS = () => {
+      //const ws = new WebSocket((window.location.protocol === "https:" ? "wss://" : "ws://") + window.location.host + "/ws");
       const ws = new WebSocket("ws://192.168.0.100:3001/ws");
       ws.addEventListener("open", () => console.log("ws opened"));
       ws.addEventListener("message", (e) => {
@@ -20,22 +19,23 @@ export function useWS(onMessage: cb): [RefObject<WebSocket>, string] {
         if (message.clientID) {
           setClientID(message.clientID);
         }
-
-        onMessage(message);
       });
       ws.addEventListener("close", (ev: CloseEvent) => {
         console.log("ws closed", ev);
         if (ev.code === 1000) {
           return;
         }
-        const intervalHandle = setInterval(() => {
+
+        const reconnect = () => {
           console.log("try reconnect");
           try {
             setupWS();
           } catch (e) {
-            return;
+            setTimeout(() => reconnect(), 1000);
           }
-          clearInterval(intervalHandle);
+        };
+        window.setTimeout(() => {
+          reconnect();
         }, 1000);
       });
 

@@ -1,22 +1,23 @@
 import { useRef, RefObject, MutableRefObject } from "react";
 import { useUserMedia } from "./userMedia";
-import { PeerAudio } from "./PeerAudio";
+import { PeerScreenShare } from "./PeerScreenShare";
 
 interface Props {
-  clientID: string;
   wsRef: RefObject<WebSocket>;
-  initiate: boolean;
 }
 
 const CAPTURE_OPTIONS = {
-  audio: true,
+  audio: false,
+  video: {
+    //cursor: "always",
+  },
 };
 
-export const Audio = ({ clientID, wsRef, initiate }: Props) => {
+export const ScreenShare = ({ wsRef }: Props) => {
   const [mediaStream] = useUserMedia(CAPTURE_OPTIONS);
 
   if (!mediaStream) {
     return null;
   }
-  return <PeerAudio clientID={clientID} wsRef={wsRef} mediaStream={mediaStream} initiate={initiate} />;
+  return <PeerScreenShare wsRef={wsRef} mediaStream={mediaStream} />;
 };

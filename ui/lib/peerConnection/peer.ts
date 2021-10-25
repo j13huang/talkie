@@ -15,16 +15,19 @@ export function usePeerConnection(
     if (!mediaStream) {
       return;
     }
-    const peer: Peer.Instance = new (window as any).SimplePeer({
+    const peer: Peer.Instance = new ((window as any).SimplePeer as Peer.SimplePeer)({
       initiator: true,
       config: { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] },
+      trickle: false,
       stream: mediaStream,
     });
     peer.on("signal", (data) => {
-      console.log(data);
+      console.log("signal", data);
+      fetch;
     });
 
     peer.on("stream", (stream) => {
+      console.log("stream", stream);
       if (streamRef.current) {
         streamRef.current.srcObject = stream;
       }
