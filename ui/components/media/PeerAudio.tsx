@@ -12,7 +12,7 @@ const TRACK_TYPE = "audio";
 
 export const PeerAudio = ({ originID, wsRef, mediaStream, peerID }: Props) => {
   const audioRef = useRef() as MutableRefObject<HTMLAudioElement>;
-  const [pcRef] = usePeerConnection(mediaStream, wsRef, TRACK_TYPE, "channel", originID, peerID);
+  const [pcRef] = usePeerConnection(mediaStream, wsRef, TRACK_TYPE, originID, peerID);
 
   useEffect(() => {
     if (!mediaStream || !pcRef || !pcRef.current) {

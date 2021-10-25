@@ -1,7 +1,5 @@
 import { useState, useRef, MutableRefObject, useEffect, RefObject } from "react";
 
-type cb = (data: any) => void;
-
 // helpful docs
 // https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API/Signaling_and_video_calling
 // https://www.html5rocks.com/en/tutorials/webrtc/basics/
@@ -9,7 +7,6 @@ export function usePeerConnection(
   mediaStream: MediaStream | undefined,
   wsRef: RefObject<WebSocket>,
   trackType: string,
-  channel: string,
   originID: string,
   peerID: string,
 ): [RefObject<RTCPeerConnection>] {
@@ -31,7 +28,7 @@ export function usePeerConnection(
       console.log("sending-offer");
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
-      wsRef.current.send(JSON.stringify({ type: "offer", sdp: offer, channel, originID, peerID }));
+      wsRef.current.send(JSON.stringify({ type: "offer", sdp: offer, originID, peerID }));
     });
     /*
     pc.addEventListener("track", (e: RTCTrackEvent) => {
@@ -62,7 +59,7 @@ export function usePeerConnection(
         current.close();
       }
     };
-  }, [mediaStream, wsRef, trackType, channel]);
+  }, [mediaStream, wsRef, trackType]);
 
   useEffect(() => {
     if (!pcRef || !pcRef.current) {
@@ -77,7 +74,7 @@ export function usePeerConnection(
       if (!wsRef || !wsRef.current || !e.candidate) {
         return;
       }
-      wsRef.current.send(JSON.stringify({ type: "new_candidate", candidate: e.candidate, channel, to: candidatePeerID }));
+      wsRef.current.send(JSON.stringify({ type: "new_candidate", candidate: e.candidate, to: candidatePeerID }));
     };
     pcRef.current.addEventListener("icecandidate", onNewIceCandidate);
 
@@ -113,9 +110,7 @@ export function usePeerConnection(
 
         const answer = await pcRef.current.createAnswer();
         await pcRef.current.setLocalDescription(answer);
-        wsRef.current.send(
-          JSON.stringify({ type: "answer", sdp: answer, channel, originID: data.originID, peerID: data.peerID }),
-        );
+        wsRef.current.send(JSON.stringify({ type: "answer", sdp: answer, originID: data.originID, peerID: data.peerID }));
         return;
       }
 
@@ -135,7 +130,7 @@ export function usePeerConnection(
       }
       wsRef.current.removeEventListener("message", onMessage);
     };
-  }, [mediaStream, wsRef, pcRef, channel]);
+  }, [mediaStream, wsRef, pcRef]);
 
   return [pcRef];
 }

@@ -10,7 +10,7 @@ const TRACK_TYPE = "video";
 
 export const PeerScreenShare = ({ wsRef, mediaStream }: Props) => {
   const videoRef = useRef() as MutableRefObject<HTMLVideoElement>;
-  const [pcRef] = usePeerConnection(mediaStream, wsRef, TRACK_TYPE, "channel", false);
+  const [pcRef] = usePeerConnection(mediaStream, wsRef, TRACK_TYPE, "channel", "");
 
   useEffect(() => {
     if (!mediaStream || !pcRef || !pcRef.current) {

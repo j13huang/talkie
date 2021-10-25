@@ -11,7 +11,10 @@ interface Props {
 }
 
 const CAPTURE_OPTIONS = {
-  audio: true,
+  audio: {
+    echoCancellation: true,
+    noiseSuppression: true,
+  },
 };
 
 export const Audio = ({ originID, wsRef, peerID }: Props) => {
