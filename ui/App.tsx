@@ -9,7 +9,7 @@ import "./App.css";
 function App() {
   const [count, setCount] = useState(0);
   const [userCount, setUserCount] = useState(0);
-  const ws = useWS((data) => {
+  const [wsRef, wsClientID] = useWS((data) => {
     setCount(data.count);
   });
 
@@ -27,7 +27,12 @@ function App() {
           <button
             type="button"
             onClick={() => {
-              ws.current.send(JSON.stringify({ type: EVENT_TYPES.INCREMENT_COUNT }));
+              if (wsRef.current) {
+                wsRef.current.send(JSON.stringify({ type: EVENT_TYPES.INCREMENT_COUNT }));
+              }
+              fetch("/api/request")
+                .then((response) => response.json())
+                .then((data) => console.log(data));
               //setCount((count) => count + 1);
             }}
           >

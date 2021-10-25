@@ -11,13 +11,13 @@ export default defineConfig({
   server: {
     host: "0.0.0.0",
     proxy: {
-      "*": {
-        target: `http://localhost:${PORT}`,
-        changeOrigin: true,
-      },
       "/ws": {
         target: `ws://localhost:${PORT}`,
         ws: true,
+        changeOrigin: true,
+      },
+      "^/api/.*": {
+        target: `http://localhost:${PORT}`,
         changeOrigin: true,
       },
     },

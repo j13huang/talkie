@@ -11,12 +11,12 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.get("*", (req, res) => {
-  res.sendFile("../ui/index.html", { root: __dirname });
+app.get("/api/request", (req, res) => {
+  res.status(200).send({ message: "video is added to playlist" });
 });
 
-app.post("/request", (req, res) => {
-  res.status(200).send({ message: "video is added to playlist" });
+app.get("*", (req, res) => {
+  res.sendFile(`${__dirname}/../ui/index.html`, { root: __dirname });
 });
 
 const PORT = 3001;

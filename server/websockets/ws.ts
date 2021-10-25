@@ -22,15 +22,15 @@ export class Server {
     this.wss = new WebSocketServer({ server: server, path: "/ws" });
 
     this.wss.on("connection", (ws: WebSocket, req: http.IncomingMessage) => {
-      var userID = getUniqueID();
-      this.clients[userID] = ws;
+      const clientID = getUniqueID();
+      this.clients[clientID] = ws;
 
       console.log("One client connected", req.socket.remoteAddress, Object.keys(this.clients));
       ws.on("message", this.onMessage);
 
       ws.on("close", (code: number, reason: Buffer) => {
         console.log("ws close");
-        delete this.clients[userID];
+        delete this.clients[clientID];
         ws.close();
       });
 
@@ -39,7 +39,7 @@ export class Server {
         ws.close();
       });
 
-      ws.send(JSON.stringify({ count: this.count }));
+      ws.send(JSON.stringify({ clientID: clientID, count: this.count }));
     });
   }
 
