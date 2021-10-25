@@ -18,8 +18,11 @@ export function useWS(onMessage: cb): [RefObject<WebSocket>, string] {
         }
         onMessage(message);
       });
-      ws.addEventListener("close", () => {
-        console.log("ws closed");
+      ws.addEventListener("close", (ev: CloseEvent) => {
+        console.log("ws closed", ev);
+        if (ev.code === 1000) {
+          return;
+        }
         const intervalHandle = setInterval(() => {
           console.log("try reconnect");
           try {
@@ -31,8 +34,12 @@ export function useWS(onMessage: cb): [RefObject<WebSocket>, string] {
         }, 1000);
       });
 
+      ws.addEventListener("error", (e: Event) => {
+        console.log("ws error", e);
+        //ws.close();
+      });
+
       wsRef.current = ws;
-      return ws;
     };
     setupWS();
 
@@ -41,7 +48,7 @@ export function useWS(onMessage: cb): [RefObject<WebSocket>, string] {
     return () => {
       console.log("closing");
       if (wsCurrent) {
-        wsCurrent.close();
+        wsCurrent.close(1000);
       }
       //wsRef.current = null;
     };

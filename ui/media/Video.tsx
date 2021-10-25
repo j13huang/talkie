@@ -18,5 +18,6 @@ export function Video() {
     videoRef.current.play();
   }
 
-  return <video ref={videoRef} onCanPlay={handleCanPlay} autoPlay playsInline muted />;
+  //return <video ref={videoRef} onCanPlay={handleCanPlay} autoPlay playsInline muted />;
+  return null;
 }

@@ -3,12 +3,12 @@ import { WebSocket, Server as WebSocketServer, RawData } from "ws";
 import { EVENT_TYPES } from "../../shared/websockets";
 
 // This code generates unique userid for everyuser.
-const getUniqueID = () => {
+const getUniqueID = (extra: string) => {
   const s4 = () =>
     Math.floor((1 + Math.random()) * 0x10000)
       .toString(16)
       .substring(1);
-  return s4() + s4() + "-" + s4();
+  return `${s4()}${s4()}-${s4()}-${extra}`;
 };
 
 export class Server {
@@ -22,14 +22,14 @@ export class Server {
     this.wss = new WebSocketServer({ server: server, path: "/ws" });
 
     this.wss.on("connection", (ws: WebSocket, req: http.IncomingMessage) => {
-      const clientID = getUniqueID();
+      const clientID = getUniqueID(req.socket.remoteAddress);
       this.clients[clientID] = ws;
 
       console.log("One client connected", req.socket.remoteAddress, Object.keys(this.clients));
       ws.on("message", this.onMessage);
 
       ws.on("close", (code: number, reason: Buffer) => {
-        console.log("ws close");
+        console.log("ws close", clientID);
         delete this.clients[clientID];
         ws.close();
       });

@@ -6,7 +6,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "serve": "vite preview",
-    "start": "npx tsc-watch --project tsconfig.server.json --onSuccess \"node ./dist/server/server.js\""
+    "start": "npx tsc-watch --noClear --project tsconfig.server.json --onSuccess \"node ./dist/server/server.js\""
   },
   "dependencies": {
     "cors": "^2.8.5",
