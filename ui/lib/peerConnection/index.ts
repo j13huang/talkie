@@ -1,1 +1,1 @@
-export * from "./peer.native";
+export * from "./peer";
