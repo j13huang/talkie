@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 export function useUserMedia(requestedMedia: MediaStreamConstraints) {
-  const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
+  const [mediaStream, setMediaStream] = useState<MediaStream>();
 
   useEffect(() => {
     async function enableStream() {
@@ -9,6 +9,7 @@ export function useUserMedia(requestedMedia: MediaStreamConstraints) {
         const stream = await navigator.mediaDevices.getUserMedia(requestedMedia);
         setMediaStream(stream);
       } catch (err) {
+        console.log(err);
         // Removed for brevity
       }
     }
@@ -25,5 +26,5 @@ export function useUserMedia(requestedMedia: MediaStreamConstraints) {
     };
   }, [mediaStream, requestedMedia]);
 
-  return mediaStream;
+  return [mediaStream];
 }

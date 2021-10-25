@@ -8,7 +8,7 @@ const CAPTURE_OPTIONS = {
 
 export function Video() {
   const videoRef = useRef() as MutableRefObject<HTMLVideoElement>;
-  const mediaStream = useUserMedia(CAPTURE_OPTIONS);
+  const [mediaStream] = useUserMedia(CAPTURE_OPTIONS);
 
   if (mediaStream && videoRef.current && !videoRef.current.srcObject) {
     videoRef.current.srcObject = mediaStream;

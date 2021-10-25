@@ -13,9 +13,14 @@ export function useWS(onMessage: cb): [RefObject<WebSocket>, string] {
       ws.addEventListener("message", (e) => {
         const message = JSON.parse(e.data);
         console.log("e", message);
+        if (!message) {
+          return;
+        }
+
         if (message.clientID) {
           setClientID(message.clientID);
         }
+
         onMessage(message);
       });
       ws.addEventListener("close", (ev: CloseEvent) => {
@@ -43,12 +48,12 @@ export function useWS(onMessage: cb): [RefObject<WebSocket>, string] {
     };
     setupWS();
 
-    const wsCurrent = wsRef.current;
+    const current = wsRef.current;
     console.log("ws setup");
     return () => {
       console.log("closing");
-      if (wsCurrent) {
-        wsCurrent.close(1000);
+      if (current) {
+        current.close(1000);
       }
       //wsRef.current = null;
     };

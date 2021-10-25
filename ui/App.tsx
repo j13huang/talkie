@@ -1,7 +1,7 @@
 import { useState } from "react";
 import logo from "./logo.svg";
-import { Audio, Video } from "./media";
-import { useWS } from "./websockets";
+import { Audio, Video } from "./components/media";
+import { useWS } from "./lib/websockets";
 import { EVENT_TYPES } from "../shared/websockets";
 
 import "./App.css";
@@ -20,7 +20,7 @@ function App() {
         <p>Hello Vite + React!</p>
         <p>user count: {userCount}</p>
         <div>
-          <Audio />
+          <Audio wsRef={wsRef} />
           {false && <Video />}
         </div>
         <p>
