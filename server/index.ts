@@ -1,4 +1,5 @@
 import * as express from "express";
+import * as cors from "cors";
 import { createServer } from "http";
 import * as websockets from "./websockets";
 
@@ -6,6 +7,7 @@ const app = express();
 const httpServer = createServer(app);
 const wss = new websockets.Server(httpServer);
 
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
@@ -14,7 +16,6 @@ app.get("*", (req, res) => {
 });
 
 app.post("/request", (req, res) => {
-  wss.broadcast("yo");
   res.status(200).send({ message: "video is added to playlist" });
 });
 

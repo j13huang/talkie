@@ -1,5 +1,6 @@
 import * as http from "http";
-import { WebSocket, Server as WebSocketServer } from "ws";
+import { WebSocket, Server as WebSocketServer, RawData } from "ws";
+import { EVENT_TYPES } from "../../shared/websockets";
 
 // This code generates unique userid for everyuser.
 const getUniqueID = () => {
@@ -13,43 +14,52 @@ const getUniqueID = () => {
 export class Server {
   wss: WebSocketServer;
   clients: { [key: string]: any };
+  count: number;
 
   constructor(server: http.Server) {
     this.clients = {};
+    this.count = 0;
     this.wss = new WebSocketServer({ server: server, path: "/ws" });
 
-    this.wss.on("connection", (ws: WebSocket) => {
-      console.log("One client connected");
+    this.wss.on("connection", (ws: WebSocket, req: http.IncomingMessage) => {
       var userID = getUniqueID();
       this.clients[userID] = ws;
 
-      ws.on("message", (msg) => {
-        ws.send(`incoming msg is = ${msg}`);
+      console.log("One client connected", req.socket.remoteAddress, Object.keys(this.clients));
+      ws.on("message", this.onMessage);
+
+      ws.on("close", (code: number, reason: Buffer) => {
+        console.log("ws close");
+        delete this.clients[userID];
+        ws.close();
       });
+
+      ws.on("error", (err: Error) => {
+        console.log("ws error", err);
+        ws.close();
+      });
+
+      ws.send(JSON.stringify({ count: this.count }));
     });
   }
 
-  onMessage = (message: WebSocket, websocket: http.IncomingMessage) => {
-    if (!message || !websocket) return;
-
-    try {
-      /*
-      if (message.checkPresence) {
-        //checkPresence(message, websocket);
-      } else if (message.open) {
-        //onOpen(message, websocket);
-      } else {
-        //sendMessage(message, websocket);
-      }
-      */
-    } catch (e) {}
+  onMessage = (msg: RawData) => {
+    console.log(`incoming msg is = ${msg}`);
+    const data = JSON.parse(msg.toString());
+    console.log(data.type, EVENT_TYPES.INCREMENT_COUNT);
+    switch (data.type) {
+      case EVENT_TYPES.INCREMENT_COUNT:
+        this.count = this.count + 1;
+        this.broadcast({ count: this.count });
+        return;
+    }
   };
 
-  broadcast(msg: string) {
+  broadcast(msg: { [key: string]: any }) {
     this.wss.clients.forEach((client) => {
       // Check that connect are open and still alive to avoid socket error
       if (client.readyState === WebSocket.OPEN) {
-        client.send(msg);
+        client.send(JSON.stringify(msg));
       }
     });
   }

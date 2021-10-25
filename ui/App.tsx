@@ -2,13 +2,16 @@ import { useState } from "react";
 import logo from "./logo.svg";
 import { Audio, Video } from "./media";
 import { useWS } from "./websockets";
+import { EVENT_TYPES } from "../shared/websockets";
 
 import "./App.css";
 
 function App() {
   const [count, setCount] = useState(0);
   const [userCount, setUserCount] = useState(0);
-  const ws = useWS();
+  const ws = useWS((data) => {
+    setCount(data.count);
+  });
 
   return (
     <div className="App">
@@ -18,10 +21,16 @@ function App() {
         <p>user count: {userCount}</p>
         <div>
           <Audio />
-          <Video />
+          {false && <Video />}
         </div>
         <p>
-          <button type="button" onClick={() => setCount((count) => count + 1)}>
+          <button
+            type="button"
+            onClick={() => {
+              ws.current.send(JSON.stringify({ type: EVENT_TYPES.INCREMENT_COUNT }));
+              //setCount((count) => count + 1);
+            }}
+          >
             count is: {count}
           </button>
         </p>
