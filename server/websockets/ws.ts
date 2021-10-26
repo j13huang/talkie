@@ -31,7 +31,7 @@ export class Server {
       ws.on("close", (code: number, reason: Buffer) => {
         delete this.clients[clientID];
         console.log("ws close", clientID, Object.keys(this.clients));
-        this.broadcast({ users: Object.keys(this.clients) }, ws);
+        this.broadcast({ users: Object.keys(this.clients) });
         ws.close();
       });
       ws.on("error", (err: Error) => {
@@ -65,10 +65,10 @@ export class Server {
     }
   };
 
-  broadcast(data: { [key: string]: any }, skip?: WebSocket) {
+  broadcast(data: { [key: string]: any }) {
     this.wss.clients.forEach((client) => {
       // Check that connect are open and still alive to avoid socket error
-      if (client.readyState !== WebSocket.OPEN || client === skip) {
+      if (client.readyState !== WebSocket.OPEN) {
         return;
       }
       client.send(JSON.stringify(data));
