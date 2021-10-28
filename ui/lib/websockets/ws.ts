@@ -6,8 +6,8 @@ export function useWS(): [RefObject<WebSocket>, string] {
 
   useEffect(() => {
     const setupWS = () => {
-      //const ws = new WebSocket((window.location.protocol === "https:" ? "wss://" : "ws://") + window.location.host + "/ws");
-      const ws = new WebSocket("ws://192.168.0.100:3001/ws");
+      const ws = new WebSocket((window.location.protocol === "https:" ? "wss://" : "ws://") + window.location.host + "/ws");
+      //const ws = new WebSocket("ws://192.168.0.100:3001/ws");
       ws.addEventListener("open", () => console.log("ws opened"));
       ws.addEventListener("message", (e) => {
         const message = JSON.parse(e.data);
